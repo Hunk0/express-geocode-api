@@ -159,11 +159,14 @@ export default class Usuario {
         try {
             const conn = await connect();
             const user = await conn.query('SELECT * FROM usuarios WHERE id = ?', [this.id]);
+            const result = JSON.parse(JSON.stringify(user[0]));
 
-            return JSON.parse(JSON.stringify(user[0]))[0];
+            if(result.length != 0) return result[0];
         } catch (error) {
             throw {code: 500, msg: "Ha ocurrido un problema, intenta de nuevo mas tarde"};
         }
+
+        throw {code: 404, msg: "Este usuario no existe"}
     }
 
     public async createNew(){
@@ -174,6 +177,7 @@ export default class Usuario {
 
             return await this.getOne();
         } catch (error) {
+            console.log(error)
             if(error?.code === 'ER_BAD_FIELD_ERROR') throw {code: 400, msg: "Error, revisa la informacion ingresada"};
             throw {code: 500, msg: "Ha ocurrido un problema, intenta de nuevo mas tarde"};
         }
@@ -184,9 +188,7 @@ export default class Usuario {
             const conn = await connect();
             const results = await conn.query('DELETE FROM usuarios WHERE id = ?', [this.id]);
 
-            if(JSON.parse(JSON.stringify(results[0])).affectedRows != 0)
-                return {msg: "El usuario ha sido eliminado con exito!"}
-                
+            if(JSON.parse(JSON.stringify(results[0])).affectedRows != 0) return {msg: "El usuario ha sido eliminado con exito!"} 
         } catch (error) {
             throw {code: 500, msg: "Ha ocurrido un problema, intenta de nuevo mas tarde"};
         }

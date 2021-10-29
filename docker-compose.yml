@@ -1,0 +1,35 @@
+version: '3.6'
+
+services:
+  mysqldb:
+    image: mysql:5.7
+    restart: unless-stopped
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=geo_users
+    ports:
+      - "3306:3306"
+    volumes:
+     # - db:/var/lib/mysql
+     # - ./mysql-dump:/docker-entrypoint-initdb.d
+      - ./src/interfaces/Script.sql:/docker-entrypoint-initdb.d/Script.sql
+
+  app:
+    depends_on:
+      - mysqldb
+    build: 
+      context: .
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_HOST=mysqldb
+      - DATABASE_PASSWORD=
+      - NODE_ENV=dev
+      - G_KEY=examplekey
+    stdin_open: true
+    tty: true
+
+volumes: 
+  db:

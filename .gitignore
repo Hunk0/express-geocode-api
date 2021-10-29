@@ -1,4 +1,7 @@
 #directores
 /node_modules
 /dist
-/robots
+/mysql-dump
+
+#files
+.env
